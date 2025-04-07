@@ -1,0 +1,256 @@
+openapi: 3.1.0
+info:
+  title: Email API
+  description: API pour récupérer les détails des emails, lister les emails non lus et installer les pièces jointes d'un email spécifique.
+  version: 1.0.0
+  contact:
+    name: Support API
+    url: http://localhost/stage_gtl/project_api/readme
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost/stage_gtl/project_api
+    description: Serveur de développement local
+
+paths:
+  /view/{email_number}:
+    get:
+      summary: Récupérer les détails d'un email spécifique
+      description: |
+        Cet endpoint permet de récupérer les détails d'un email spécifique en utilisant le paramètre `email_number`.
+        Pour utiliser cet endpoint, remplacez `{email_number}` par l'ID de l'email que vous souhaitez récupérer.
+        Exemple d'URL : `http:/.../project_api/view/31`
+      parameters:
+        - name: email_numberd
+          in: path
+          required: true
+          description: Numéro de l'email à récupérer
+          schema:
+            type: integer
+          example: 31
+      responses:
+        '200':
+          description: Détails de l'email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailDetails'
+              example:
+                email_id: 31
+                subject: "Mail avec pièces jointes"
+                from: "Dany DA GRAÇA <dagracadany@gmx.fr>"
+                date: "Fri, 4 Oct 2024 16:55:56 +0200"
+                readen: "no"
+                plain_content: "C'est un mail avec du texte et des pièces jointes.\n--\n*Dany DA GRAÇA*\n06 05 03 09 34\ndagracadany@gmx.fr"
+                html_content: "<p>C'est un mail avec du texte et des pièces jointes.<br></p><div class=\"moz-signature\">-- <br><b>Dany DA GRAÇA</b><br>06 05 03 09 34<br><a href=\"dagracadany@gmx.fr\" class=\"moz-txt-link-freetext\">dagracadany@gmx.fr</a></div>"
+                attachments:
+                  - filename: "image_1.jpg"
+                    path: "http://localhost/stage_gtl/project_api/attachments/20241004_165556_5566_image_1.jpg"
+                recipients:
+                  - "demo@gtl-digital.fr"
+                  - "autre@exemple.com"
+        '404':
+          description: Email non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Email avec l'ID 31 non trouvé."
+
+  /view/:
+    get:
+      summary: Lister tous les emails non lus
+      description: |
+        Cet endpoint permet de lister tous les emails non lus.
+        Pour utiliser cet endpoint, accédez simplement à l'URL : `http:/.../project_api/view/`
+      responses:
+        '200':
+          description: Liste des emails non lus
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailDetails'
+              example:
+                - email_id: 31
+                  subject: "Mail avec pièces jointes"
+                  from: "Dany DA GRAÇA <dagracadany@gmx.fr>"
+                  date: "Fri, 4 Oct 2024 16:55:56 +0200"
+                  readen: "no"
+                  plain_content: "C'est un mail avec du texte et des pièces jointes.\n--\n*Dany DA GRAÇA*\n06 05 03 09 34\ndagracadany@gmx.fr"
+                  html_content: "<p>C'est un mail avec du texte et des pièces jointes.<br></p><div class=\"moz-signature\">-- <br><b>Dany DA GRAÇA</b><br>06 05 03 09 34<br><a href=\"dagracadany@gmx.fr\" class=\"moz-txt-link-freetext\">dagracadany@gmx.fr</a></div>"
+                  attachments:
+                    - filename: "image_1.jpg"
+                      path: "http://localhost/stage_gtl/project_api/attachments/20241004_165556_5566_image_1.jpg"
+                  recipients:
+                    - "demo@gtl-digital.fr"
+                    - "autre@exemple.com"
+
+  /index.php:
+    get:
+      summary: Lister tous les emails avec une icône pour les emails avec des pièces jointes
+      description: |
+        Cet endpoint permet de lister tous les emails de la boîte email fournie de façon lisible.
+        Pour utiliser cet endpoint, accédez simplement à l'URL : `http:/.../project_api/index.php`
+      responses:
+        '200':
+          description: Liste des emails
+          content:
+            text/html:
+              schema:
+                type: string
+                example: |
+                  <!DOCTYPE html>
+                  <html lang="fr">
+                  <head>
+                      <meta charset="UTF-8">
+                      <title>Liste des Emails</title>
+                  </head>
+                  <body>
+                      <h1>Liste des Emails</h1>
+                      <table border="1">
+                          <tr>
+                              <th>Subject</th>
+                              <th>From</th>
+                              <th>Date</th>
+                              <th>Readen</th>
+                              <th>Attachements</th>
+                              <th>To</th>
+                              <th>Actions</th>
+                          </tr>
+                          <tr>
+                              <td>Mail avec pièces jointes</td>
+                              <td>Dany DA GRAÇA &lt;dagracadany@gmx.fr&gt;</td>
+                              <td>Fri, 4 Oct 2024 16:55:56 +0200</td>
+                              <td>Non lu</td>
+                              <td>📎</td>
+                              <td>demo@gtl-digital.fr, autre@exemple.com</td>
+                              <td>
+                                  <a href="view/31">Voir</a>
+                              </td>
+                          </tr>
+                      </table>
+                  </body>
+                  </html>
+
+  /get/{email_number}:
+    get:
+      summary: Installer les pièces jointes d'un email spécifique
+      description: |
+        Cet endpoint permet d'installer les pièces jointes d'un email spécifique en utilisant le paramètre `email_number`.
+        Pour utiliser cet endpoint, remplacez `{email_number}` par l'ID de l'email dont vous souhaitez installer les pièces jointes.
+        Exemple d'URL : `http:/.../project_api/get/31`
+      parameters:
+        - name: email_number
+          in: path
+          required: true
+          description: Numéro de l'email à récupérer
+          schema:
+            type: integer
+          example: 31
+      responses:
+        '200':
+          description: Les pièces jointes de l'email ont été installées avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentInstallationResponse'
+              example:
+                message: "The attachments of the email [31] have been installed successfully."
+                attachments:
+                  - filename: "image_1.jpg"
+                    path: "http://localhost/stage_gtl/project_api/attachments/20241004_165556_5566_image_1.jpg"
+        '404':
+          description: Email non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Email avec l'ID 31 non trouvé."
+
+components:
+  schemas:
+    EmailDetails:
+      type: object
+      properties:
+        email_id:
+          type: integer
+          description: Numéro de l'email
+          example: 31
+        subject:
+          type: string
+          description: Sujet de l'email
+          example: "Mail avec pièces jointes"
+        from:
+          type: string
+          description: Expéditeur de l'email
+          example: "Dany DA GRAÇA <dagracadany@gmx.fr>"
+        date:
+          type: string
+          description: Date de l'email
+          example: "Fri, 4 Oct 2024 16:55:56 +0200"
+        readen:
+          type: string
+          description: Indique si l'email a été lu
+          example: "no"
+        plain_content:
+          type: string
+          description: Contenu brut de l'email
+          example: "C'est un mail avec du texte et des pièces jointes.\n--\n*Dany DA GRAÇA*\n06 05 03 09 34\ndagracadany@gmx.fr"
+        html_content:
+          type: string
+          description: Contenu HTML de l'email
+          example: "<p>C'est un mail avec du texte et des pièces jointes.<br></p><div class=\"moz-signature\">-- <br><b>Dany DA GRAÇA</b><br>06 05 03 09 34<br><a href=\"dagracadany@gmx.fr\" class=\"moz-txt-link-freetext\">dagracadany@gmx.fr</a></div>"
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              filename:
+                type: string
+                description: Nom du fichier joint
+                example: "image_1.jpg"
+              path:
+                type: string
+                description: Chemin complet du fichier joint
+                example: "http://localhost/stage_gtl/project_api/attachments/20241004_165556_5566_image_1.jpg"
+        recipients:
+          type: array
+          items:
+            type: string
+          description: Liste des destinataires de l'email
+          example:
+            - "demo@gtl-digital.fr"
+            - "autre@exemple.com"
+    AttachmentInstallationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message de succès
+          example: "The attachments of the email [31] have been installed successfully."
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              filename:
+                type: string
+                description: Nom du fichier joint
+                example: "image_1.jpg"
+              path:
+                type: string
+                description: Chemin complet du fichier joint
+                example: "http://localhost/stage_gtl/project_api/attachments/20241004_165556_5566_image_1.jpg"
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Message d'erreur
+          example: "Email avec l'ID 31 non trouvé."
